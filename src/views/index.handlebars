@@ -1,0 +1,17 @@
+<div class="container-fluid">
+    <div class="row">
+        <header class="bg-success text-white p-3" style="height: 25vh;">
+            <h1><b>Productos</b></h1>
+        </header>
+    </div>
+
+    <div class="row">
+        <div class="col-12 m-3">
+            <ul>
+              {{#each prod}}
+                <li>Id:{{this.id}}, {{this.title}}. Descripción: {{this.description}},Precio: ${{this.price}}</li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
+</div>

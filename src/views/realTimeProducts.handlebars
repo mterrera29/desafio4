@@ -1,0 +1,90 @@
+<div class="container-fluid">
+    <div class="row">
+        <header class="bg-success text-white p-3" style="height: 25vh;">
+            <h1><b>Productos</b></h1>
+        </header>
+    </div>
+
+    <div class="row" id="container">
+        <ul class="col-12 m-3" id="products">
+        </ul>
+    </div>
+
+    <form action="" class="row col-6 m-3">
+      <label for="fname">Ingrese el Id del producto a eliminar:</label>
+      <input type="number" id="idDelete">
+      <input type="submit" value="Borrar" id="submitDelete">
+    </form>
+
+    <div class="row col-6 m-3">
+      <h1>
+        Agregar Producto:
+      </h1>
+    </div>
+
+    <form action="" class="row col-6 m-3">
+      <label for="fname">*Title:</label>
+      <input type="text" id="title" >
+      <label for="fname">*Description:</label>
+      <input type="text" id="description" >
+      <label for="fname">*Code:</label>
+      <input type="text" id="code">
+      <label for="fname">*Price:</label>
+      <input type="text" id="price">
+      <label for="fname">*Stock:</label>
+      <input type="text" id="stock">
+      <label for="fname">*Category:</label>
+      <input type="text" id="category">
+      <label for="fname">Thumbnail:</label>
+      <input type="text" id="thumbnail">
+      <input type="submit" value="Agregar" id="submit">
+    </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>
+<script>
+  const products = document.getElementById('products')
+  const submit = document.getElementById('submit')
+  const submitDelete = document.getElementById('submitDelete')
+  const container = document.getElementById('container')
+  
+  const ws = io('ws://localhost:3050')
+
+  ws.on('server_confirm', (msg) => {
+      console.log(msg);
+  });
+  submit.addEventListener('click',(event)=> {
+    const keysRequired = [title,description,code,price,stock,category]
+    const noValues = keysRequired.some((prod)=> {return prod.value === ""})
+    event.preventDefault()
+    if(noValues){
+      console.log("Los campos requeridos no pueden estar vacios")
+    }else{
+    ws.emit('new_product', {title: title.value, description:description.value,code:code.value,price:price.value,stock:stock.value,category:category.value,thumbnail:[thumbnail.value],status:true});
+    ws.on("new_products",(data)=>{
+        console.log(data)
+      })
+    }
+  });
+  ws.on('products', (data) => {
+    products.innerHTML= ""
+    data.forEach((data)=>{
+      products.innerHTML = `${products.innerHTML}
+          <li>Id: ${data.id}, ${data.title}. Descripción: ${data.description}, Precio: $ ${data.price}</li>
+      `;
+    })
+  })
+
+  submitDelete.addEventListener('click',(event)=> {
+    event.preventDefault();
+    eliminarProd(idDelete.value)
+  });
+
+  const eliminarProd = (id)=>{
+    ws.emit('delete_product',id)
+    ws.on("delete_product",(data)=>{
+      console.log(data)
+    })
+  }
+    
+</script>
